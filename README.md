@@ -21,7 +21,7 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository:
    ```
    git clone https://github.com/chirazkahla/myjade.git
-   cd demo
+   cd myjade
    ```
 
 2. Build the project:
@@ -31,5 +31,5 @@ Before you begin, ensure you have the following installed:
 
 3. Run the application:
    ```
-   mvnW exec:java
+   mvn exec:java
    ```
