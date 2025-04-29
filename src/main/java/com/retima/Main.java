@@ -1,28 +1,23 @@
 package com.retima;
 
-import jade.core.Profile;
-import jade.core.ProfileImpl;
-import jade.core.Runtime;
-import jade.wrapper.AgentContainer;
-import jade.wrapper.AgentController;
+import com.retima.agents.AgentManager;
+import com.retima.ui.AddSellerUI;
+import com.retima.ui.AddTenantUI; // اذا واجهة المستأجر عندك اسمها هكذا
+import com.retima.ui.AgentsListUI;
+
+import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-        Runtime runtime = Runtime.instance();
-        Profile profile = new ProfileImpl();
-        profile.setParameter(Profile.GUI, "true"); // Enable the GUI
+        // 1. تشغيل JADE مع الواجهة
+        AgentManager.initializeJADE();
 
-        AgentContainer container = runtime.createMainContainer(profile);
-
-        try {
-            // Use the fully qualified class name
-            AgentController helloAgent = container.createNewAgent("HelloAgent", "com.retima.HelloAgent", null);
-            helloAgent.start();
-
-            AgentController hiAgent = container.createNewAgent("HiAgent", "com.retima.HiAgent", null);
-            hiAgent.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // 2. إظهار الواجهات في نفس الوقت
+        SwingUtilities.invokeLater(() -> {
+            new AddSellerUI();
+            new AddTenantUI();
+             new AgentsListUI().setVisible(true);
+        });
+        
     }
 }

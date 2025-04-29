@@ -1,0 +1,94 @@
+package com.retima;
+
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
+import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Main {
+
+    private static AgentContainer mainContainer;
+
+    public static void main(String[] args) {
+        // إعداد JADE
+        Profile profile = new ProfileImpl();
+        profile.setParameter(Profile.GUI, "true");
+        profile.setParameter(Profile.MAIN_HOST, "localhost");
+        profile.setParameter(Profile.MAIN_PORT, "1099");
+
+        mainContainer = Runtime.instance().createMainContainer(profile);
+
+        // إطلاق واجهة المستخدم
+        SwingUtilities.invokeLater(Main::createAndShowGUI);
+    }
+
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("إدخال بيانات المستخدم");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 250);
+
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JTextField nameField = new JTextField();
+        JTextField ageField = new JTextField();
+        JTextField emailField = new JTextField();
+        JButton sendButton = new JButton("إرسال البيانات إلى Agent");
+
+        panel.add(new JLabel("الاسم:"));
+        panel.add(nameField);
+        panel.add(new JLabel("العمر:"));
+        panel.add(ageField);
+        panel.add(new JLabel("البريد الإلكتروني:"));
+        panel.add(emailField);
+        panel.add(new JLabel());
+        panel.add(sendButton);
+
+        frame.add(panel);
+        frame.setLocationRelativeTo(null); // وسط الشاشة
+        frame.setVisible(true);
+
+        sendButton.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String age = ageField.getText().trim();
+            String email = emailField.getText().trim();
+
+            if (name.isEmpty() || age.isEmpty() || email.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "يرجى ملء جميع الحقول", "خطأ", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                // تحقق من أن العمر رقم
+                Integer.parseInt(age);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "العمر يجب أن يكون رقمًا صحيحًا", "خطأ",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                Object[] agentArgs = { name, age, email };
+                String agentName = "PersonAgent_" + System.currentTimeMillis(); // اسم فريد
+
+                AgentController agent = mainContainer.createNewAgent(
+                        agentName,
+                        "com.retima.PersonAgent",
+                        agentArgs);
+                agent.start();
+
+                JOptionPane.showMessageDialog(frame, "تم إرسال البيانات إلى Agent: " + agentName);
+                nameField.setText("");
+                ageField.setText("");
+                emailField.setText("");
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "حدث خطأ أثناء إنشاء الـ Agent: " + ex.getMessage(), "خطأ",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+}
